@@ -14,3 +14,16 @@ services:
       - NODE_ENV=development
       - HOST_IP=${HOST_IP:-}
     command: npm run dev
+
+  test:
+    build:
+      context: .
+      target: builder
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=test
+    command: npm run coverage
+    profiles:
+      - test
