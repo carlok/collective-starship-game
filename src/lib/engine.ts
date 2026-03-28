@@ -26,7 +26,7 @@ export function processTick(
   pendingFires: number,
   gameTimer: number,
   maxGameTimeTicks: number,
-  tickCount: number
+  tickCount = 0
 ): { newState: GameState; events: string[] } {
   const moveObjects = tickCount % MOVE_EVERY_N_TICKS === 0;
   const events: string[] = [];

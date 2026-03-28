@@ -29,8 +29,8 @@ describe('Projector Component', () => {
 });
 
 describe('MobileController Component', () => {
-  it('renders connecting screen initially', () => {
+  it('renders tap-to-join screen initially', () => {
     render(<MobileController />);
-    expect(screen.getByText('Connecting to Mothership...')).toBeInTheDocument();
+    expect(screen.getByText('TAP TO JOIN')).toBeInTheDocument();
   });
 });
