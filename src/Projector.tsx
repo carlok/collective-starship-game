@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { QRCodeSVG } from 'qrcode.react';
 import { GameState, COLS, ROWS } from './lib/types';
-import { Users, Crosshair, Navigation } from 'lucide-react';
+import { Users, Play, Square, RotateCcw } from 'lucide-react';
 
 const SOCKET_URL = window.location.origin;
 
@@ -160,6 +160,34 @@ export default function Projector() {
           <p className="text-gray-500 text-[10px] mt-2 text-center break-all">
             {soloUrl}
           </p>
+        </div>
+
+        {/* Speaker Controls */}
+        <div className="mb-4">
+          {state.status === 'waiting' && (
+            <button
+              onClick={() => socket?.emit('control', { action: 'start' })}
+              className="w-full flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 active:bg-green-800 text-white font-black tracking-widest py-3 rounded-lg transition-colors"
+            >
+              <Play size={18} /> START GAME
+            </button>
+          )}
+          {state.status === 'playing' && (
+            <button
+              onClick={() => socket?.emit('control', { action: 'stop' })}
+              className="w-full flex items-center justify-center gap-2 bg-red-800 hover:bg-red-700 active:bg-red-900 text-white font-black tracking-widest py-3 rounded-lg transition-colors"
+            >
+              <Square size={18} /> STOP GAME
+            </button>
+          )}
+          {(state.status === 'gameover' || state.status === 'victory') && (
+            <button
+              onClick={() => socket?.emit('control', { action: 'restart' })}
+              className="w-full flex items-center justify-center gap-2 bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 text-black font-black tracking-widest py-3 rounded-lg transition-colors"
+            >
+              <RotateCcw size={18} /> RESTART
+            </button>
+          )}
         </div>
 
         {/* Live Roster */}

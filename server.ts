@@ -114,6 +114,19 @@ async function startServer() {
     // Send initial state
     socket.emit('state', state);
 
+    socket.on('control', (data: { action: 'start' | 'stop' | 'restart' }) => {
+      if (data.action === 'start' && state.status === 'waiting') {
+        resetGame();
+        io.emit('state', state);
+      } else if (data.action === 'stop' && state.status === 'playing') {
+        state.status = 'waiting';
+        io.emit('state', state);
+      } else if (data.action === 'restart') {
+        resetGame();
+        io.emit('state', state);
+      }
+    });
+
     socket.on('action', (data) => {
       if (state.status !== 'playing') return;
       state.stats.totalInputs++;
