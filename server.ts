@@ -114,8 +114,10 @@ async function startServer() {
     if (isProjector) return;
 
     // Assign role — solo=true gives dual role (both helmsman + gunner)
+    // Otherwise alternate: helmsman on odd join, gunner on even join
     const isSolo = socket.handshake.query.solo === 'true';
-    const role = isSolo ? 'dual' : (Math.random() > 0.5 ? 'helmsman' : 'gunner');
+    const totalPlayers = state.stats.helmsmenCount + state.stats.gunnersCount;
+    const role = isSolo ? 'dual' : (totalPlayers % 2 === 0 ? 'helmsman' : 'gunner');
     socket.emit('role', role);
 
     if (role === 'dual') {
