@@ -92,6 +92,27 @@ async function startServer() {
 
   // Socket.io Logic
   io.on('connection', (socket) => {
+    const isProjector = socket.handshake.query.projector === 'true';
+
+    // Send initial state to everyone
+    socket.emit('state', state);
+
+    socket.on('control', (data: { action: 'start' | 'stop' | 'restart' }) => {
+      if (data.action === 'start' && state.status === 'waiting') {
+        resetGame();
+        io.emit('state', state);
+      } else if (data.action === 'stop' && state.status === 'playing') {
+        state.status = 'waiting';
+        io.emit('state', state);
+      } else if (data.action === 'restart') {
+        resetGame();
+        io.emit('state', state);
+      }
+    });
+
+    // Players only from here on
+    if (isProjector) return;
+
     // Assign role — solo=true gives dual role (both helmsman + gunner)
     const isSolo = socket.handshake.query.solo === 'true';
     const role = isSolo ? 'dual' : (Math.random() > 0.5 ? 'helmsman' : 'gunner');
@@ -109,23 +130,8 @@ async function startServer() {
     // Start game if enough players join and waiting
     if (state.status === 'waiting' && (state.stats.helmsmenCount + state.stats.gunnersCount) > 0) {
       resetGame();
+      io.emit('state', state);
     }
-
-    // Send initial state
-    socket.emit('state', state);
-
-    socket.on('control', (data: { action: 'start' | 'stop' | 'restart' }) => {
-      if (data.action === 'start' && state.status === 'waiting') {
-        resetGame();
-        io.emit('state', state);
-      } else if (data.action === 'stop' && state.status === 'playing') {
-        state.status = 'waiting';
-        io.emit('state', state);
-      } else if (data.action === 'restart') {
-        resetGame();
-        io.emit('state', state);
-      }
-    });
 
     socket.on('action', (data) => {
       if (state.status !== 'playing') return;

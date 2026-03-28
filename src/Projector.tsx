@@ -21,7 +21,7 @@ export default function Projector() {
   }, []);
 
   useEffect(() => {
-    const newSocket = io(SOCKET_URL);
+    const newSocket = io(SOCKET_URL, { query: { projector: 'true' } });
     setSocket(newSocket);
 
     newSocket.on('state', (newState: GameState) => {
