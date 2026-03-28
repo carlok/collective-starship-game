@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-shake: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  --animate-float-up: float-up 1s ease-out forwards;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-2px, 2px, 0); }
+  20%, 80% { transform: translate3d(4px, -2px, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, 4px, 0); }
+  40%, 60% { transform: translate3d(8px, -4px, 0); }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-30px) scale(1.5); opacity: 0; }
+}
+
+.starfield {
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: stars 100s linear infinite;
+}
+
+@keyframes stars {
+  0% { background-position: 0 0; }
+  100% { background-position: -10000px 0; }
+}
