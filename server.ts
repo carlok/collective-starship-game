@@ -129,11 +129,7 @@ async function startServer() {
       state.stats.gunnersCount++;
     }
 
-    // Start game if enough players join and waiting
-    if (state.status === 'waiting' && (state.stats.helmsmenCount + state.stats.gunnersCount) > 0) {
-      resetGame();
-      io.emit('state', state);
-    }
+    io.emit('state', state);
 
     socket.on('action', (data) => {
       if (state.status !== 'playing') return;
