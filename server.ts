@@ -64,7 +64,7 @@ async function startServer() {
   });
 
   const PORT = 3000;
-  const localIP = getLocalIP();
+  const localIP = process.env.HOST_IP || getLocalIP();
 
   // API Routes
   app.get('/api/health', (req, res) => {

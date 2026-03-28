@@ -12,4 +12,5 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      - HOST_IP=${HOST_IP:-}
     command: npm run dev
