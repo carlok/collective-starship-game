@@ -1,6 +1,6 @@
 export const COLS = 16;
 export const ROWS = 8;
-export const TICK_RATE_MS = 200; // 5 FPS
+export const TICK_RATE_MS = 100; // 10 FPS
 
 export type Role = 'helmsman' | 'gunner' | 'dual';
 

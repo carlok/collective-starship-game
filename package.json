@@ -1,7 +1,8 @@
 {
-  "name": "react-example",
+  "name": "collective-starship-game",
+  "description": "Multiplayer arcade space shooter for live events — helmsmen steer, gunners fire, everyone survives together.",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "NODE_ENV=production tsx server.ts",
