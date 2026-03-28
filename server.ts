@@ -9,14 +9,24 @@ import { TICK_RATE_MS } from './src/lib/types';
 
 function getLocalIP(): string {
   const ifaces = os.networkInterfaces();
-  for (const name of Object.keys(ifaces)) {
-    for (const iface of ifaces[name] ?? []) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
-      }
+  const candidates: string[] = [];
+
+  for (const [name, addrs] of Object.entries(ifaces)) {
+    // Skip virtual/container interfaces
+    if (/^(docker|podman|veth|virbr|vmnet|vboxnet|br-|lo)/i.test(name)) continue;
+    for (const iface of addrs ?? []) {
+      if (iface.family !== 'IPv4' || iface.internal) continue;
+      candidates.push(iface.address);
     }
   }
-  return 'localhost';
+
+  // Prefer 192.168.x.x (home/office WiFi), then 10.x.x.x, then whatever is left
+  return (
+    candidates.find(ip => ip.startsWith('192.168.')) ??
+    candidates.find(ip => ip.startsWith('10.'))      ??
+    candidates[0]                                    ??
+    'localhost'
+  );
 }
 
 // Initial State
