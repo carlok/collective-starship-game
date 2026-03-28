@@ -1,10 +1,10 @@
-import { GameState, COLS, ROWS, Enemy, Projectile } from './types';
+import { GameState, COLS, ROWS, Enemy, Projectile, MOVE_EVERY_N_TICKS } from './types';
 
 export const MAX_HP = 10;
 export const MAX_ENERGY = 100;
 export const ENERGY_RECHARGE_RATE = 5;
 export const ENERGY_COST_PER_SHOT = 20;
-export const EMOJIS = ['👾', '🍔', '☄️', '🛸', '🍕', '🍩', '🤖', '💀'];
+export const EMOJIS = ['🪨', '☄️', '🌑', '🪐', '💫', '🌠', '⚫', '🌙'];
 
 export function createInitialState(): GameState {
   return {
@@ -25,8 +25,10 @@ export function processTick(
   totalSwipesThisTick: number,
   pendingFires: number,
   gameTimer: number,
-  maxGameTimeTicks: number
+  maxGameTimeTicks: number,
+  tickCount: number
 ): { newState: GameState; events: string[] } {
+  const moveObjects = tickCount % MOVE_EVERY_N_TICKS === 0;
   const events: string[] = [];
   // Deep clone state to avoid mutating the original directly in pure function
   const newState: GameState = JSON.parse(JSON.stringify(state));
@@ -61,7 +63,9 @@ export function processTick(
   }
 
   // 3. Move Projectiles
-  newState.projectiles.forEach((p: Projectile) => p.col++);
+  if (moveObjects) {
+    newState.projectiles.forEach((p: Projectile) => p.col++);
+  }
   const offScreenProjectiles = newState.projectiles.filter((p: Projectile) => p.col >= COLS);
   if (offScreenProjectiles.length > 0) {
     newState.stats.combo = 0; // Reset combo on miss
@@ -69,7 +73,9 @@ export function processTick(
   newState.projectiles = newState.projectiles.filter((p: Projectile) => p.col < COLS);
 
   // 4. Move Enemies
-  newState.enemies.forEach((e: Enemy) => e.col--);
+  if (moveObjects) {
+    newState.enemies.forEach((e: Enemy) => e.col--);
+  }
   newState.enemies = newState.enemies.filter((e: Enemy) => {
     if (e.col <= newState.ship.col) {
       if (e.row === newState.ship.row) {
@@ -122,7 +128,7 @@ export function processTick(
 
   // 6. Spawn Enemies
   const spawnChance = Math.min(0.8, 0.1 + (gameTimer / maxGameTimeTicks) * 0.7);
-  if (Math.random() < spawnChance) {
+  if (moveObjects && Math.random() < spawnChance) {
     newState.enemies.push({
       id: Math.random().toString(36).substr(2, 9),
       row: Math.floor(Math.random() * ROWS),

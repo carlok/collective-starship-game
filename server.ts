@@ -168,7 +168,8 @@ async function startServer() {
       totalSwipesThisTick,
       pendingFires,
       gameTimer,
-      MAX_GAME_TIME_TICKS
+      MAX_GAME_TIME_TICKS,
+      tickCount
     );
 
     state = newState;

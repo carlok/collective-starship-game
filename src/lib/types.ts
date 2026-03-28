@@ -1,6 +1,7 @@
 export const COLS = 16;
 export const ROWS = 8;
-export const TICK_RATE_MS = 100; // 10 FPS
+export const TICK_RATE_MS = 100;       // 10 FPS — input responsiveness
+export const MOVE_EVERY_N_TICKS = 2;  // objects move at 5 FPS (original speed)
 
 export type Role = 'helmsman' | 'gunner' | 'dual';
 
