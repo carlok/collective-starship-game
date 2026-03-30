@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Role } from './lib/types';
 import { Navigation, Crosshair, Zap } from 'lucide-react';

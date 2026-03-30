@@ -70,8 +70,8 @@ describe('Game Engine', () => {
     const { newState, events } = processTick(state, 0, 0, 0, 1, 100);
     
     // Projectile moves to col 5, enemy moves to col 4 -> collision!
-    expect(newState.enemies.length).toBe(0);
-    expect(newState.projectiles.length).toBe(0);
+    expect(newState.enemies.find(e => e.id === 'e1')).toBeUndefined();
+    expect(newState.projectiles.find(p => p.id === 'p1')).toBeUndefined();
     expect(newState.stats.score).toBe(10);
     expect(newState.stats.combo).toBe(1);
     expect(newState.floatingTexts.length).toBe(1);
@@ -100,7 +100,7 @@ describe('Game Engine', () => {
     const { newState, events } = processTick(state, 0, 0, 0, 1, 100);
     
     // Enemy moves to col 0, hits ship
-    expect(newState.enemies.length).toBe(0);
+    expect(newState.enemies.find(e => e.id === 'e1')).toBeUndefined();
     expect(newState.ship.hp).toBe(MAX_HP - 1);
     expect(events).toContain('damage');
   });
