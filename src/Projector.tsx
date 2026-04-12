@@ -11,12 +11,26 @@ export default function Projector() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isShaking, setIsShaking] = useState(false);
   const [serverIP, setServerIP] = useState<string | null>(null);
+  const [showSoloQr, setShowSoloQr] = useState(true);
   const prevHpRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetch('/api/info')
       .then(r => r.json())
-      .then(({ ip, port }: { ip: string; port: number }) => setServerIP(`${ip}:${port}`))
+      .then(
+        ({
+          ip,
+          port,
+          showSoloQr: solo,
+        }: {
+          ip: string;
+          port: number;
+          showSoloQr?: boolean;
+        }) => {
+          setServerIP(`${ip}:${port}`);
+          if (typeof solo === 'boolean') setShowSoloQr(solo);
+        }
+      )
       .catch(() => setServerIP(window.location.host));
   }, []);
 
@@ -153,14 +167,15 @@ export default function Projector() {
             {playUrl}
           </p>
         </div>
-        {/* Solo Play Link */}
-        <div className="bg-gray-900 border border-cyan-800 rounded-lg p-3 mb-4 flex flex-col items-center">
-          <p className="text-cyan-500 text-xs font-bold tracking-widest mb-2">SOLO PLAY</p>
-          <QRCodeSVG value={soloUrl} size={100} bgColor="#111" fgColor="#22d3ee" />
-          <p className="text-gray-500 text-[10px] mt-2 text-center break-all">
-            {soloUrl}
-          </p>
-        </div>
+        {showSoloQr && (
+          <div className="bg-gray-900 border border-cyan-800 rounded-lg p-3 mb-4 flex flex-col items-center">
+            <p className="text-cyan-500 text-xs font-bold tracking-widest mb-2">SOLO PLAY</p>
+            <QRCodeSVG value={soloUrl} size={100} bgColor="#111" fgColor="#22d3ee" />
+            <p className="text-gray-500 text-[10px] mt-2 text-center break-all">
+              {soloUrl}
+            </p>
+          </div>
+        )}
 
         {/* Speaker Controls */}
         <div className="mb-4">

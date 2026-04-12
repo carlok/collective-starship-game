@@ -29,6 +29,13 @@ function getLocalIP(): string {
   );
 }
 
+/** Env for projector UI; default on. Set SHOW_SOLO_QR=false at boot to hide solo QR. */
+function readShowSoloQr(): boolean {
+  const v = process.env.SHOW_SOLO_QR?.trim().toLowerCase();
+  if (v === undefined || v === '') return true;
+  return !(v === '0' || v === 'false' || v === 'no' || v === 'off');
+}
+
 // Initial State
 let state = createInitialState();
 
@@ -72,7 +79,7 @@ async function startServer() {
   });
 
   app.get('/api/info', (req, res) => {
-    res.json({ ip: localIP, port: PORT });
+    res.json({ ip: localIP, port: PORT, showSoloQr: readShowSoloQr() });
   });
 
   // Vite middleware for development
