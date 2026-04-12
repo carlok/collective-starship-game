@@ -36,6 +36,34 @@ function readShowSoloQr(): boolean {
   return !(v === '0' || v === 'false' || v === 'no' || v === 'off');
 }
 
+function isIpv4Host(host: string): boolean {
+  return /^\d{1,3}(?:\.\d{1,3}){3}$/.test(host);
+}
+
+/**
+ * Base URL for QR codes and /play links (no trailing slash).
+ * - PUBLIC_ORIGIN (e.g. https://avgame0.octopuslab.ai) overrides everything.
+ * - Else if HOST_IP is set and is not an IPv4 address → https://HOST_IP (implicit 443 behind nginx).
+ * - Else if PUBLIC_HTTPS is set → forces https or http for the advertised host.
+ * - Else IPv4 → http://ip:PORT; other hostnames without TLS hint → http://host (port 80 implied).
+ */
+function computeJoinBaseUrl(advertisedHost: string, port: number, hostIpEnvSet: boolean): string {
+  const origin = process.env.PUBLIC_ORIGIN?.trim().replace(/\/$/, '');
+  if (origin) return origin;
+
+  const explicit = process.env.PUBLIC_HTTPS?.trim().toLowerCase();
+  let useHttps: boolean;
+  if (explicit !== undefined && explicit !== '') {
+    useHttps = !(explicit === '0' || explicit === 'false' || explicit === 'no' || explicit === 'off');
+  } else {
+    useHttps = hostIpEnvSet && !isIpv4Host(advertisedHost);
+  }
+
+  if (useHttps) return `https://${advertisedHost}`;
+  if (isIpv4Host(advertisedHost)) return `http://${advertisedHost}:${port}`;
+  return `http://${advertisedHost}`;
+}
+
 // Initial State
 let state = createInitialState();
 
@@ -71,7 +99,10 @@ async function startServer() {
   });
 
   const PORT = 3000;
-  const localIP = process.env.HOST_IP || getLocalIP();
+  const hostIpEnv = process.env.HOST_IP?.trim();
+  const advertisedHost = hostIpEnv || getLocalIP();
+  const hostIpEnvSet = Boolean(hostIpEnv);
+  const joinBaseUrl = computeJoinBaseUrl(advertisedHost, PORT, hostIpEnvSet);
 
   // API Routes
   app.get('/api/health', (req, res) => {
@@ -79,7 +110,12 @@ async function startServer() {
   });
 
   app.get('/api/info', (req, res) => {
-    res.json({ ip: localIP, port: PORT, showSoloQr: readShowSoloQr() });
+    res.json({
+      ip: advertisedHost,
+      port: PORT,
+      showSoloQr: readShowSoloQr(),
+      joinBaseUrl,
+    });
   });
 
   // Vite middleware for development
@@ -199,9 +235,10 @@ async function startServer() {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`\nServer running:`);
     console.log(`  Local:   http://localhost:${PORT}`);
-    console.log(`  Network: http://${localIP}:${PORT}`);
-    console.log(`  Players: http://${localIP}:${PORT}/play`);
-    console.log(`  Solo:    http://${localIP}:${PORT}/play?solo=true\n`);
+    console.log(`  Network: http://${advertisedHost}:${PORT}`);
+    console.log(`  Join QR base: ${joinBaseUrl}`);
+    console.log(`  Players: ${joinBaseUrl}/play`);
+    console.log(`  Solo:    ${joinBaseUrl}/play?solo=true\n`);
   });
 }
 

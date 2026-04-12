@@ -10,7 +10,7 @@ export default function Projector() {
   const [state, setState] = useState<GameState | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isShaking, setIsShaking] = useState(false);
-  const [serverIP, setServerIP] = useState<string | null>(null);
+  const [joinBaseUrl, setJoinBaseUrl] = useState<string | null>(null);
   const [showSoloQr, setShowSoloQr] = useState(true);
   const prevHpRef = useRef<number | null>(null);
 
@@ -21,17 +21,23 @@ export default function Projector() {
         ({
           ip,
           port,
+          joinBaseUrl: apiBase,
           showSoloQr: solo,
         }: {
           ip: string;
           port: number;
+          joinBaseUrl?: string;
           showSoloQr?: boolean;
         }) => {
-          setServerIP(`${ip}:${port}`);
+          const base =
+            typeof apiBase === 'string' && apiBase.length > 0
+              ? apiBase.replace(/\/$/, '')
+              : `http://${ip}:${port}`;
+          setJoinBaseUrl(base);
           if (typeof solo === 'boolean') setShowSoloQr(solo);
         }
       )
-      .catch(() => setServerIP(window.location.host));
+      .catch(() => setJoinBaseUrl(window.location.origin));
   }, []);
 
   useEffect(() => {
@@ -65,7 +71,7 @@ export default function Projector() {
     );
   }
 
-  const baseUrl = serverIP ? `http://${serverIP}` : window.location.origin;
+  const baseUrl = joinBaseUrl ?? window.location.origin;
   const playUrl = `${baseUrl}/play`;
   const soloUrl = `${baseUrl}/play?solo=true`;
 
