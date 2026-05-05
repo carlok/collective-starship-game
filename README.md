@@ -25,6 +25,7 @@ When users scan the QR code, they are randomly divided into two distinct groups:
 Run the game via Podman so you don’t need to install/run Node tooling directly on the host.
 
 To achieve quick iteration and hot-reloading without rebuilding containers, use the provided Compose configuration. It mounts your local directory as a volume.
+The compose `game` service targets a lightweight `dev` Docker stage that installs dependencies but does not copy the whole repository at build time.
 
 **Using Podman Compose (recommended):**
 ```bash
@@ -38,6 +39,28 @@ docker-compose up --build
 
 The app will be available at `http://localhost:3000`. Any changes you make to the source code locally will instantly restart the server or trigger HMR on the frontend.
 
+### LAN / Public Host IP Launch (for parties & device debugging)
+
+To make the QR code advertise a network-reachable host address (instead of auto-detected localhost-ish values), set `HOST_IP` when starting compose:
+
+```bash
+HOST_IP=192.168.1.42 podman-compose up --build
+```
+
+or with Docker:
+
+```bash
+HOST_IP=192.168.1.42 docker-compose up --build
+```
+
+Use an IP reachable by the players' phones:
+- Same Wi-Fi/LAN event: use your host LAN IP (for example `192.168.x.x`).
+- Different network/remote users: use your public IP or domain, and ensure port `3000` is reachable (router port-forwarding, firewall rules, etc.).
+
+At startup, verify logs show:
+- `Join QR base: http://<HOST_IP>:3000`
+- `Players: http://<HOST_IP>:3000/play`
+
 ## Testing & Code Coverage
 
 The core game engine is decoupled from the network layer, making it highly testable. We use `vitest` for unit testing.
@@ -46,13 +69,13 @@ All test/coverage steps run inside containers (no host `npm test` / `npm coverag
 
 **Run Unit Tests + Build (podman):**
 ```bash
-podman build --target builder -t collective_starship_game-builder . && \
-podman run --rm -e NODE_ENV=test collective_starship_game-builder sh -c "npm run lint && npm test && npm run build"
+podman build --target deps -t collective_starship_game-deps . && \
+podman run --rm -v "$PWD":/app -v /app/node_modules -e NODE_ENV=test collective_starship_game-deps sh -c "npm run lint && npm test && npm run build"
 ```
 
 **Run Code Coverage (podman):**
 ```bash
-podman run --rm -e NODE_ENV=test collective_starship_game-builder sh -c "npm run coverage"
+podman run --rm -v "$PWD":/app -v /app/node_modules -e NODE_ENV=test collective_starship_game-deps sh -c "npm run coverage"
 ```
 
 This generates a `coverage/` directory with an HTML report detailing the test coverage of the core game logic (`src/lib/engine.ts`).
