@@ -2,6 +2,8 @@
 
 A live, multiplayer interactive conference game designed to demonstrate the effects and challenges of "collective behavior."
 
+![Collective Defense gameplay screenshot](./sshot.png)
+
 ## Overview
 The game is a 2D arcade-style shooter built on a massive virtual grid. The main game screen is projected on a large screen behind the speaker. The audience participates using their smartphones by scanning a QR code projected on the screen.
 
