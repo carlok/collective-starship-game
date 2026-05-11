@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialState, processTick, MAX_HP, MAX_ENERGY, ENERGY_COST_PER_SHOT, ENERGY_RECHARGE_RATE } from './engine';
+import { MOVE_EVERY_N_TICKS } from './types';
 
 describe('Game Engine', () => {
   it('should initialize correctly', () => {
@@ -128,5 +129,29 @@ describe('Game Engine', () => {
     
     expect(newState.status).toBe('victory');
     expect(events).toContain('victory');
+  });
+
+  it('should not move enemies and projectiles on non-move ticks', () => {
+    const state = createInitialState();
+    state.status = 'playing';
+    state.enemies.push({ id: 'e1', row: 2, col: 10, emoji: '👾' });
+    state.projectiles.push({ id: 'p1', row: 2, col: 3 });
+
+    const { newState } = processTick(state, 0, 0, 0, 1, 100, MOVE_EVERY_N_TICKS - 1);
+
+    expect(newState.enemies.find(e => e.id === 'e1')?.col).toBe(10);
+    expect(newState.projectiles.find(p => p.id === 'p1')?.col).toBe(3);
+  });
+
+  it('should move enemies and projectiles on move ticks', () => {
+    const state = createInitialState();
+    state.status = 'playing';
+    state.enemies.push({ id: 'e1', row: 2, col: 10, emoji: '👾' });
+    state.projectiles.push({ id: 'p1', row: 2, col: 3 });
+
+    const { newState } = processTick(state, 0, 0, 0, 1, 100, MOVE_EVERY_N_TICKS);
+
+    expect(newState.enemies.find(e => e.id === 'e1')?.col).toBe(9);
+    expect(newState.projectiles.find(p => p.id === 'p1')?.col).toBe(4);
   });
 });
