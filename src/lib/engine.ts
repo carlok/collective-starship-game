@@ -49,7 +49,7 @@ export function processTick(
   // 2. Process Gunner Inputs
   if (pendingFires > 0 && newState.ship.energy >= ENERGY_COST_PER_SHOT) {
     newState.projectiles.push({
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).slice(2, 11),
       row: newState.ship.row,
       col: newState.ship.col + 1,
     });
@@ -107,7 +107,7 @@ export function processTick(
         newState.stats.score += points;
         
         newState.floatingTexts.push({
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).slice(2, 11),
           row: e.row,
           col: e.col,
           text: `+${points}`,
@@ -130,7 +130,7 @@ export function processTick(
   const spawnChance = Math.min(0.8, 0.1 + (gameTimer / maxGameTimeTicks) * 0.7);
   if (moveObjects && Math.random() < spawnChance) {
     newState.enemies.push({
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).slice(2, 11),
       row: Math.floor(Math.random() * ROWS),
       col: COLS - 1,
       emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
