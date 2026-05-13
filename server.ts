@@ -188,13 +188,16 @@ async function startServer() {
 
     socket.on('disconnect', () => {
       if (role === 'dual') {
-        state.stats.helmsmenCount--;
-        state.stats.gunnersCount--;
+        state.stats.helmsmenCount = Math.max(0, state.stats.helmsmenCount - 1);
+        state.stats.gunnersCount = Math.max(0, state.stats.gunnersCount - 1);
       } else if (role === 'helmsman') {
-        state.stats.helmsmenCount--;
+        state.stats.helmsmenCount = Math.max(0, state.stats.helmsmenCount - 1);
       } else {
-        state.stats.gunnersCount--;
+        state.stats.gunnersCount = Math.max(0, state.stats.gunnersCount - 1);
       }
+      // Game loop only emits while `playing`; lobby / gameover need an explicit push
+      // or the projector roster stays stale after phones drop (tab close, sleep, etc.).
+      io.emit('state', state);
     });
   });
 
