@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { createServer as createViteServer } from 'vite';
 import { Server } from 'socket.io';
 import http from 'http';
@@ -93,6 +94,15 @@ function resetGame() {
 
 async function startServer() {
   const app = express();
+  // Mitigate DoS on file-serving routes (CodeQL: js/missing-rate-limiting).
+  app.use(
+    rateLimit({
+      windowMs: 60 * 1000,
+      max: 600,
+      standardHeaders: true,
+      legacyHeaders: false,
+    })
+  );
   const server = http.createServer(app);
   const io = new Server(server, {
     cors: { origin: '*' },
